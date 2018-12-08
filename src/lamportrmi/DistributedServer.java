@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.rmi.AccessException;
 import java.rmi.AlreadyBoundException;
+import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -48,12 +49,12 @@ public class DistributedServer extends LamportServer implements IGlobalRMI {
         //String own_ip_adress = args[0];
         //int own_port = Integer.parseInt(args[1]);
         
-        /****************************************/
+        /*******************FOR DEBUG*********************/
         String own_ip_adress = "127.0.0.1";
         //int own_port = 1099;
         //int own_port = 1100;
         int own_port = 1101;
-        /****************************************/
+        /*******************FOR DEBUG*********************/
         
         // lecture de la topologie et création d'une liste lui correspondant
         final String delimiter = " ";
@@ -95,9 +96,7 @@ public class DistributedServer extends LamportServer implements IGlobalRMI {
         
         // création du registre pour se connecter au service Lamport
         Registry registryLamport = LocateRegistry.createRegistry(own_port);
-        String url_lamport = "//" + own_ip_adress + ":" + own_port + "/" + ILamportServer.SERVICE_NAME;
-        registryLamport.bind(url_lamport, server);
-        System.out.println(registryLamport.list()[0]);
+        registryLamport.bind(ILamportServer.SERVICE_NAME, server);
         
         // création du registre pour se connecter au service Global
         Registry registryGlobal = LocateRegistry.createRegistry(own_port + 3);
@@ -116,15 +115,14 @@ public class DistributedServer extends LamportServer implements IGlobalRMI {
         final int DELAY_BETWEEN_TRIES = 1000;
         Registry registry;
         for (ServerDAO serverDAO : serverList) {
-            String url = "//" + serverDAO.getIp_adress() + ":" + serverDAO.getPort() + "/" + ILamportServer.SERVICE_NAME;
+            String url = serverDAO.getIp_adress() + ":" + serverDAO.getPort();
             if (serverDAO.getId() != own_DAO.getId()) {
                 for (int i = 0; i < DELAY_TOSTART_ALL_SERVERS; i++) {
-                    registry = LocateRegistry.getRegistry(url);
+                    registry = LocateRegistry.getRegistry(serverDAO.getIp_adress(), serverDAO.getPort());
                     try {
                         ILamportServer serveur = (ILamportServer)registry.lookup(ILamportServer.SERVICE_NAME);
                         serverMap.put(serverDAO.getId(), serveur);
                     } catch (Exception ex) {
-                        System.out.println(ex);
                         if(i == DELAY_TOSTART_ALL_SERVERS - 1) {
                             System.out.println("impossible to connect at " + url);
                             exit(1);
@@ -139,5 +137,6 @@ public class DistributedServer extends LamportServer implements IGlobalRMI {
             }
         }
         server.setServers(serverMap);
+        System.out.println("Tous les serveurs sont connectés");
     }
 }

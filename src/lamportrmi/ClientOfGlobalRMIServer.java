@@ -24,8 +24,8 @@ public class ClientOfGlobalRMIServer {
     final static int QUIT = -1;
 
     public ClientOfGlobalRMIServer(String ipAdress, int port) throws RemoteException, NotBoundException {
-        Registry registry = LocateRegistry.getRegistry(ipAdress + ":" + port);
-        serveur = (IGlobalRMI)registry.lookup("serveur");
+        Registry registry = LocateRegistry.getRegistry(ipAdress, port);
+        serveur = (IGlobalRMI)registry.lookup("GLOBAL_RMI");
     }
     
     /**
@@ -56,8 +56,15 @@ public class ClientOfGlobalRMIServer {
     
     public static void main (String[] args){
         // se connect au serveur RMI distant
-        String ip_adress = args[0];
-        int port = Integer.parseInt(args[1]);
+        //String ip_adress = args[0];
+        //int port = Integer.parseInt(args[1]);
+        
+        /*******************FOR DEBUG*********************/
+        String ip_adress = "127.0.0.1";
+        int port = 1102;
+        //int port = 1103;
+        //int port = 1104;
+        /********************FOR DEBUG********************/
         ClientOfGlobalRMIServer client =  null;
         try {
             client = new ClientOfGlobalRMIServer(ip_adress, port);
