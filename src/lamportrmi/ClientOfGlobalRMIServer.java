@@ -6,94 +6,116 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
- *
- * Class permettant de se connecter serveur IGlobalRMI
+ * Classe permettant de se connecter au serveur IGlobalRMI
  * 
- * Le main proposant une interface ligne de commande à l'utilisateur 
- * pour modifier/afficher la variable global que le serveur gère.
+ * Le main propose une interface ligne de commande à l'utilisateur 
+ * pour modifier/afficher la variable global que les serveurs gèrent.
+ * 
+ * @author Nathan & Jimmy
  */
 public class ClientOfGlobalRMIServer {
     
-    IGlobalRMI serveur;
-    final static int GET_VAR = 1;
-    final static int SET_VAR = 2;
-    final static int QUIT = -1;
+    final static String GET_VAR = "1";  // Valeur pour afficher la variable
+    final static String SET_VAR = "2";  // Valeur pour modifier la variable
+    final static String QUIT = "q";     // Valeur pour quitter le programme
+    
+    IGlobalRMI serveur; // Serveur RMI
 
-    public ClientOfGlobalRMIServer(String ipAdress, int port) throws RemoteException, NotBoundException {
+    /**
+     * Constructeur de la classe ClientOfGlobalRMIServer
+     * @param ipAdress Adresse IP du client
+     * @param port Port du client
+     * @throws RemoteException
+     * @throws NotBoundException 
+     */
+    public ClientOfGlobalRMIServer(String ipAdress, int port)
+            throws RemoteException, NotBoundException {
         Registry registry = LocateRegistry.getRegistry(ipAdress, port);
         serveur = (IGlobalRMI)registry.lookup("GLOBAL_RMI");
     }
     
     /**
-     * appel RMI pour récupérer la valeur de la variable global du serveur distribué
-     * 
+     * Appel RMI pour récupérer la valeur de la variable global du serveur distribué
      * @return la valeur de la variable global du serveur distribué
      */
     public int getVariable() {
         try {
             return serveur.getVariable();
         } catch (RemoteException ex) {
-            System.out.println("soucis réseau");
+            System.out.println("Soucis réseau");
         }
         return -1;
     }
     
     /**
-     * appel RMI pour modifier la variable global du serveur distribué.
+     * Appel RMI pour modifier la variable global du serveur distribué.
      * @param newValue 
      */
     public void setVariable(int newValue) {
         try {
             serveur.setVariable(newValue);
         } catch (RemoteException ex) {
-            System.out.println("soucis réseau");
+            System.out.println("Soucis réseau");
         }
     }
     
     public static void main (String[] args){
-        // se connect au serveur RMI distant
-        //String ip_adress = args[0];
-        //int port = Integer.parseInt(args[1]);
+        // Se connecte au serveur RMI distant
+        String ip_adress = args[0];
+        int port = Integer.parseInt(args[1]);
         
         /*******************FOR DEBUG*********************/
-        String ip_adress = "127.0.0.1";
-        int port = 1102;
+        //String ip_adress = "127.0.0.1";
+        //int port = 1102;
         //int port = 1103;
         //int port = 1104;
         /********************FOR DEBUG********************/
+        
         ClientOfGlobalRMIServer client =  null;
         try {
             client = new ClientOfGlobalRMIServer(ip_adress, port);
         } catch (RemoteException ex ) {
-            System.out.println("impossible to get the registry at adress " + ip_adress + " and port " + port);
+            System.out.println("Impossible to get the registry at adress "
+                               + ip_adress + " and port " + port);
             exit(1);
         } catch (NotBoundException ex) {
-            System.out.println("lookup failed");
+            System.out.println("Lookup failed");
             exit(1);
         }
         
-        // demande à l'utilisateur les actions qu'il souhaite effectuer
+        // Demande à l'utilisateur les actions qu'il souhaite effectuer
         Scanner in = new Scanner(System.in);
-        int num;
+        String val;
         do {
             System.out.println("================================");
+            System.out.println("Select an option:");
             System.out.println(GET_VAR + ": read the global variable");
             System.out.println(SET_VAR + ": write the global variable");
-            num = in.nextInt();
-            switch(num) {
+            System.out.println(QUIT + ": quit the program");
+            val = in.next();
+            switch(val) {
+                // Affichage de la valeur courrante
                 case GET_VAR:
-                    System.out.println("The current value is " + client.getVariable());
+                    System.out.println("The current value is "
+                                       + client.getVariable());
                     break;
+                // Modification de la valeur courrante
                 case SET_VAR:
-                    System.out.print("What is the new value : ");
-                    num = in.nextInt();
-                    client.setVariable(num);
+                    System.out.print("What is the new number you want? ");
+                    val = in.next();
+                    client.setVariable(Integer.parseInt(val));
+                    break;
+                // Sortie du programme
+                case QUIT:
+                    System.out.println("Bye bye, see you.");
+                    break;
+                // Entrée utilisateur incorrecte
+                default:
+                    System.out.println("Bad entry, try again.");
                     break;
             }
-        } while(num != QUIT);
+        } while(!val.equals(QUIT));
     }
 }
