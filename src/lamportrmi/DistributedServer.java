@@ -25,8 +25,8 @@ public class DistributedServer extends LamportServer implements IGlobalRMI {
 
     /**
      * Constructeur de la classe DistributedServer
-     * @param servers Les serveurs qui seront lancés
-     * @param ownDAO La structure des serveurs
+     * @param servers liste d'informations concernant tous les serveurs du pool auquel on est connecté
+     * @param ownDAO information concernant le serveur du site tournant sur ce processus
      * @throws RemoteException
      * @throws InterruptedException 
      */
@@ -114,7 +114,7 @@ public class DistributedServer extends LamportServer implements IGlobalRMI {
         /**
          * Pour se connecter nous avons décidé d'utiliser un système de 
          * timer/tentative lors de la connection.
-         * Le serveur va donc essayé de se connecter à un registre distant en
+         * Le serveur va donc essayer de se connecter à un registre distant en
          * espérant qu'il est déjà existant.
          * Si la tentative échoue, il va attendre,
          * puis va réessayer plusieurs fois,

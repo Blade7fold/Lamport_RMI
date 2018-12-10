@@ -16,19 +16,19 @@ public interface ILamportServer extends Remote {
      * vouloir rentrer dans la section critique
      * @throws RemoteException 
      */
-    public void requestAll() throws RemoteException;
+    public void request(Message message) throws RemoteException;
     
     /**
-     * Réception du Message RESPONSE après avoir envoyer le Message REQUEST
-     * @param ipAdress Adresse du message RESPONSE
-     * @param port Port du message RESPONSE
+     * Envoi du Message RESPONSE après avoir Reçu le Message REQUEST
+     * @param ipAdress Adresse du serveur à qui on répond
+     * @param port Port du serveur à qui on répond
      * @throws RemoteException 
      */
-    public void responseAll(String ipAdress, int port) throws RemoteException;
+    public void response(Message message) throws RemoteException;
     
     /**
-     * Envoie du message FREE après avoir modifier et sortir de la section critique
+     * Envoie du message FREE pour indiquer aux autres serveur que l'on sort de la section critique
      * @throws RemoteException 
      */
-    public void freeSC() throws RemoteException;
+    public void freeSC(Message message) throws RemoteException;
 }

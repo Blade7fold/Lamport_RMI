@@ -6,9 +6,28 @@ package lamportrmi;
  * 
  * @author Nathan & Jimmy
  */
-public enum Message {
-    REQUEST,        // Requete pour dire que l'on veut accéder à la section critique
-    RESPONSE,       // Réponse d'un client pour accepter l'accès d'un autre client
-                    // à la section critique
-    FREE;           // Message de libération de la section critique
+ class Message {
+    
+    
+    Message(int from, long date, MessageType type) {
+        this.from = from;
+        this.date = date;
+        this.type = type;
+    }
+    
+    private final int from;
+    private final long date;
+    private final MessageType type;
+
+    public int getFrom() {
+        return from;
+    }
+
+    public long getDate() {
+        return date;
+    }
+
+    public MessageType getType() {
+        return type;
+    }
 }
