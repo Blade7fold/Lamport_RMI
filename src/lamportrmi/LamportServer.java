@@ -13,7 +13,7 @@ import java.util.Map;
  * 
  * @author Nathan & Jimmy
  */
-public class LamportServer extends UnicastRemoteObject implements ILamportServer {
+public abstract class LamportServer extends UnicastRemoteObject implements ILamportServer {
     
     final String IP_ADRESS; // Adresse du serveur
     final int PORT;         // Port du serveur
@@ -75,11 +75,8 @@ public class LamportServer extends UnicastRemoteObject implements ILamportServer
                     System.out.println("SERVER " + id);
             try {
                 if (id != ID) {
-                    long currTime = Math.max(stateMessages[ID].getDate(),
-                                             stateMessages[id].getDate()) + 1;
-                    message.setDate(currTime);
                     server.request(message);
-                    System.out.println("REQUEST DONE " + currTime);
+                    System.out.println("REQUEST DONE " + time);
                 }
             } catch (RemoteException ex) {
                 System.out.println(ex);
@@ -88,9 +85,9 @@ public class LamportServer extends UnicastRemoteObject implements ILamportServer
             }
         }
         
+        System.out.println("PERMISSION");
         while(!permission()) {
             try {
-                System.out.println("PERMISSION");
                 Thread.sleep(10);
             } catch (InterruptedException ex) {
                 
@@ -105,10 +102,10 @@ public class LamportServer extends UnicastRemoteObject implements ILamportServer
     private boolean permission() {
         boolean accord = true;
         int id;
+        System.out.println("MESSAGE DATE" + ID + ": " + stateMessages[ID].getDate() + ", TYPE: " + stateMessages[ID].getTYPE());
         for (ServerDAO server : servers) {
             id = server.getId();
             if (id != ID) {
-                System.out.println("MESSAGE DATE" + ID + ": " + stateMessages[ID].getDate() + ", TYPE: " + stateMessages[ID].getTYPE());
                 System.out.println("MESSAGE DATE" + id + ": " + stateMessages[id].getDate() + ", TYPE: " + stateMessages[id].getTYPE());
                 accord = accord &&
                             (stateMessages[ID].getDate() <

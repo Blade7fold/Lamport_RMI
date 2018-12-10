@@ -32,4 +32,6 @@ public interface ILamportServer extends Remote {
      * @throws RemoteException 
      */
     public void freeSC(Message message) throws RemoteException;
+    
+    public void setVariableGlobally(int newValue) throws RemoteException;
 }

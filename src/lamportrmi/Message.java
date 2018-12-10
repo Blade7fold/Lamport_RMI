@@ -17,7 +17,7 @@ import java.io.Serializable;
     
     Message(int from, long date, MessageType type) {
         this.FROM = from;
-        this.date = date/1000/3600;
+        this.date = date;
         this.TYPE = type;
     }
 

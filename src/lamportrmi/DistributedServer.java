@@ -42,12 +42,25 @@ public class DistributedServer extends LamportServer implements IGlobalRMI {
     
     @Override
     public void setVariable(int newValue) throws RemoteException {
-        //TODO
         askLock();      // Demande de la section critique
+        //change la variable pour nous-même
         System.out.println("Value before change = " + this.globalVariable);
+        this.setVariableGlobally(newValue);
+        //change la variable pour les autres serveurs
+        for (Map.Entry<Integer, ILamportServer> entry : serverMap.entrySet()) {
+            Integer id = entry.getKey();
+            ILamportServer server = entry.getValue();
+            if (ID != id) {
+                server.setVariableGlobally(newValue);
+            }
+        }
+        finishLock();   // Libération de la section critique
+    }
+
+    @Override
+    public void setVariableGlobally(int newValue) throws RemoteException {
         this.globalVariable = newValue;
         System.out.println("Value after change = " + this.globalVariable);
-        finishLock();   // Libération de la section critique
     }
     
     public static void main (String[] args)

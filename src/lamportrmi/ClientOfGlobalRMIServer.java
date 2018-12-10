@@ -68,8 +68,8 @@ public class ClientOfGlobalRMIServer {
         
         /*******************FOR DEBUG*********************/
         String ip_adress = "127.0.0.1";
-        int port = 1102;
-        //int port = 1103;
+        //int port = 1102;
+        int port = 1103;
         //int port = 1104;
         /********************FOR DEBUG********************/
         
