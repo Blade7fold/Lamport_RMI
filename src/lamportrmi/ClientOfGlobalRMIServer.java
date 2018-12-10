@@ -63,12 +63,12 @@ public class ClientOfGlobalRMIServer {
     
     public static void main (String[] args){
         // Se connecte au serveur RMI distant
-        String ip_adress = args[0];
-        int port = Integer.parseInt(args[1]);
+//        String ip_adress = args[0];
+//        int port = Integer.parseInt(args[1]);
         
         /*******************FOR DEBUG*********************/
-        //String ip_adress = "127.0.0.1";
-        //int port = 1102;
+        String ip_adress = "127.0.0.1";
+        int port = 1102;
         //int port = 1103;
         //int port = 1104;
         /********************FOR DEBUG********************/

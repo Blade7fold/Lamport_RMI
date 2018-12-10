@@ -2,15 +2,14 @@ package lamportrmi;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Classe qui permet aux classes qui l'étende de gérer une section critique
- * avec les méthode askLock et finishLock
- * le tout implémenté via l'algorithme de Lamport
+ * avec les méthode askLock et finishLock le tout implémenté via l'algorithme
+ * de Lamport
  * 
  * @author Nathan & Jimmy
  */
@@ -21,8 +20,10 @@ public class LamportServer extends UnicastRemoteObject implements ILamportServer
     final int ID;           // ID du serveur
     
     List<ServerDAO> servers;    // Liste d'information sur les serveurs connectés
-    Map<Integer, ILamportServer> serverMap; // Map des serveurs pour communiquer en RMI
-    Message[] stateMessages;    // Messages tableau d'état pour chaque serveur utile pour implémenter Lamport
+    Map<Integer, ILamportServer> serverMap; // Map des serveurs pour communiquer
+                                            // en RMI
+    Message[] stateMessages;    // Messages tableau d'état pour chaque serveur
+                                // utile pour implémenter Lamport
     
     /**
      * Constructeur de la classe LamportServer
@@ -38,8 +39,12 @@ public class LamportServer extends UnicastRemoteObject implements ILamportServer
         this.PORT = ownDAO.getPort();
         this.ID = ownDAO.getId();
         
+        this.servers = new LinkedList<>();
+        for (int i = 0; i < servers.size(); i++) {
+            this.servers.add(servers.get(i));
+        }
         // initialize la liste de message à libre au départ de tous les serveurs
-        this.stateMessages = new Message[servers.size()];
+        this.stateMessages = new Message[this.servers.size()];
         long time = System.currentTimeMillis();
         for (int i = 0; i < this.stateMessages.length; i++) {
             this.stateMessages[i] = new Message(i, time, MessageType.FREE);
@@ -59,17 +64,22 @@ public class LamportServer extends UnicastRemoteObject implements ILamportServer
      * Demande de la section critique de la part d'un client
      */
     public void askLock() {
-        // envoyer à tous request()
+        // Envoie à tous request()
         long time = System.currentTimeMillis();
         Message message = new Message(ID, time, MessageType.REQUEST);
+        stateMessages[ID] = message;
+                    System.out.println("ASKING LOCK");
         for (Map.Entry<Integer, ILamportServer> entry : serverMap.entrySet()) {
             Integer id = entry.getKey();
             ILamportServer server = entry.getValue();
+                    System.out.println("SERVER " + id);
             try {
                 if (id != ID) {
+                    long currTime = Math.max(stateMessages[ID].getDate(),
+                                             stateMessages[id].getDate()) + 1;
+                    message.setDate(currTime);
                     server.request(message);
-                } else {
-                    stateMessages[id] = message;
+                    System.out.println("REQUEST DONE " + currTime);
                 }
             } catch (RemoteException ex) {
                 System.out.println(ex);
@@ -80,6 +90,7 @@ public class LamportServer extends UnicastRemoteObject implements ILamportServer
         
         while(!permission()) {
             try {
+                System.out.println("PERMISSION");
                 Thread.sleep(10);
             } catch (InterruptedException ex) {
                 
@@ -87,12 +98,24 @@ public class LamportServer extends UnicastRemoteObject implements ILamportServer
         }
     }
     
+    /**
+     * 
+     * @return 
+     */
     private boolean permission() {
         boolean accord = true;
+        int id;
         for (ServerDAO server : servers) {
-            int id = server.getId();
+            id = server.getId();
             if (id != ID) {
-                accord = accord && (stateMessages[ID].getDate() < stateMessages[id].getDate() || (stateMessages[ID].getDate() == stateMessages[id].getDate() && ID < id));
+                System.out.println("MESSAGE DATE" + ID + ": " + stateMessages[ID].getDate() + ", TYPE: " + stateMessages[ID].getTYPE());
+                System.out.println("MESSAGE DATE" + id + ": " + stateMessages[id].getDate() + ", TYPE: " + stateMessages[id].getTYPE());
+                accord = accord &&
+                            (stateMessages[ID].getDate() <
+                        stateMessages[id].getDate() ||
+                            (stateMessages[ID].getDate() ==
+                        stateMessages[id].getDate() &&
+                            ID < id));
             }
         }
         return accord;
@@ -113,6 +136,7 @@ public class LamportServer extends UnicastRemoteObject implements ILamportServer
                 } else {
                     stateMessages[id] = message;
                 }
+                System.out.println("FREE DONE");
             } catch (RemoteException ex) {
                 System.out.println(ex);
                 // Selon la donnée on considère que le réseau est entièrement 
@@ -123,20 +147,24 @@ public class LamportServer extends UnicastRemoteObject implements ILamportServer
 
     @Override
     public void request(Message message) throws RemoteException {
-        int id = message.getFrom();
-        if (message.getType() == MessageType.REQUEST) {
+        int id = message.getFROM();
+        System.out.println("REQUEST TIME");
+        if (message.getTYPE() == MessageType.REQUEST) {
             stateMessages[id] = message;
-            long time = System.currentTimeMillis();
-            Message responseMsg = new Message(ID, time, MessageType.RESPONSE);
+            long currTime = Math.max(message.getDate(),
+                                     System.currentTimeMillis()) + 1;
+            Message responseMsg = new Message(ID, currTime, MessageType.RESPONSE);
             serverMap.get(id).response(responseMsg);
+                System.out.println("RESPONSE DONE");
         }
     }
 
     @Override
     public void response(Message message) throws RemoteException {
-        int id = message.getFrom();
-        if (message.getType() == MessageType.RESPONSE) {
-            if (stateMessages[id].getType() != MessageType.REQUEST) {
+        int id = message.getFROM();
+        System.out.println("RESPONSE TIME");
+        if (message.getTYPE() == MessageType.RESPONSE) {
+            if (stateMessages[id].getTYPE() != MessageType.REQUEST) {
                 stateMessages[id] = message;
             }
         }
@@ -144,8 +172,9 @@ public class LamportServer extends UnicastRemoteObject implements ILamportServer
 
     @Override
     public void freeSC(Message message) throws RemoteException {
-        int id = message.getFrom();
-        if (message.getType() == MessageType.FREE) {
+        int id = message.getFROM();
+        System.out.println("FREE TIME");
+        if (message.getTYPE() == MessageType.FREE) {
             if(stateMessages[id].getDate() < message.getDate()) {
                 stateMessages[id] = message;
             }

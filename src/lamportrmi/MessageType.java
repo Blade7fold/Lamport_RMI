@@ -1,13 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package lamportrmi;
 
 /**
- *
- * @author jimmy
+ * Cet enum comporte les messages que les slients envoient s'ils veulent accéder à 
+ * la section critique ou s'il sortent de la section critique
+ * 
+ * @author Nathan & Jimmy
  */
 public enum MessageType {
     REQUEST,        // Requete pour dire que l'on veut accéder à la section critique

@@ -1,33 +1,39 @@
 package lamportrmi;
 
+import java.io.Serializable;
+
 /**
- * Cet enum comporte les messages que les slients envoient s'ils veulent accéder à 
- * la section critique ou s'il sortent de la section critique
+ * Classe qui gèrent les messages de communication entre les serveurs, avec le TYPE
+ de message, l'id du serveur et l'heure d'envoi
  * 
  * @author Nathan & Jimmy
  */
- class Message {
+ class Message implements Serializable {
     
+    private final int FROM;
+    private final MessageType TYPE;
+    
+    private long date;
     
     Message(int from, long date, MessageType type) {
-        this.from = from;
-        this.date = date;
-        this.type = type;
+        this.FROM = from;
+        this.date = date/1000/3600;
+        this.TYPE = type;
     }
-    
-    private final int from;
-    private final long date;
-    private final MessageType type;
 
-    public int getFrom() {
-        return from;
+    public int getFROM() {
+        return FROM;
     }
 
     public long getDate() {
         return date;
     }
 
-    public MessageType getType() {
-        return type;
+    public MessageType getTYPE() {
+        return TYPE;
+    }
+    
+    public void setDate(long newDate) {
+        this.date = newDate;
     }
 }

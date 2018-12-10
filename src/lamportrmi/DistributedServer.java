@@ -43,9 +43,11 @@ public class DistributedServer extends LamportServer implements IGlobalRMI {
     @Override
     public void setVariable(int newValue) throws RemoteException {
         //TODO
-        askLock();  // Demande de la section critique
+        askLock();      // Demande de la section critique
+        System.out.println("Value before change = " + this.globalVariable);
         this.globalVariable = newValue;
-        finishLock(); // Libération de la section critique
+        System.out.println("Value after change = " + this.globalVariable);
+        finishLock();   // Libération de la section critique
     }
     
     public static void main (String[] args)
@@ -62,7 +64,7 @@ public class DistributedServer extends LamportServer implements IGlobalRMI {
         
         // Lecture de la topologie et création d'une liste lui correspondant
         final String delimiter = " ";
-        final String fileName = "../../structure.txt";
+        final String fileName = "./structure.txt";
         List<ServerDAO> serverList = new ArrayList<>();
 
         try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
@@ -81,7 +83,7 @@ public class DistributedServer extends LamportServer implements IGlobalRMI {
         ServerDAO own_DAO = null;
         for (ServerDAO serverDAO : serverList) {
             if(own_ip_adress.equals(serverDAO.getIpAdress()) &&
-                own_port == serverDAO.getPort()) {
+               own_port == serverDAO.getPort()) {
                 own_DAO = serverDAO;
             }
         }
@@ -98,7 +100,7 @@ public class DistributedServer extends LamportServer implements IGlobalRMI {
         try {
             server = new DistributedServer(serverList, own_DAO);
         } catch (InterruptedException ex) {
-            System.out.println("Impossible d'instancier le serveur");
+            System.out.println("Impossible to instanciate the server");
             exit(1);
         }
         
@@ -152,6 +154,6 @@ public class DistributedServer extends LamportServer implements IGlobalRMI {
             }
         }
         server.setServers(serverMap);
-        System.out.println("Tous les serveurs sont connectés");
+        System.out.println("All servers are connected!");
     }
 }
