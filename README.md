@@ -18,7 +18,7 @@ La classe DistributedServer est la classe principale du serveur. Elle possède d
 - `l'adresse ip` du serveur qu'on monte actuellement et qui doit correspondre a une des adresse ip serveur déclaré dans le fichier `structure.txt`
 - `le port` du serveur qu'on monte actuellement et qui doit correspondre a une des ports serveur déclaré dans le fichier `structure.txt`
 
-La classe DistributerServer sera appelée autant de fois qu'il y a de lignes dans le fichier strucutre.txt (actuellement 5, modifiable), par le fichier `launch_server(id).bat`.
+La classe DistributerServer sera appelée autant de fois qu'il y a de lignes dans le fichier strucutre.txt (actuellement 5, modifiable par le nombre de serveurs/clients que l'on veut, en respectant la même adresse IP, le port suivant à celui afficher et l'id), par le fichier `launch_server(id).bat`.
 
 ### Client
 Pour le client, la classe principale est ClientOfGlobalRMIServer.
@@ -28,5 +28,3 @@ Ici on peut appeler un client se connectant à un des serveur précédement cré
 La classe sera appelé par les dossiers `client(id).bat` avec l'adresse ip et le port où on peut le trouver.
 
 Se référer au fichier structure.txt pour être sûr des valeurs.
-
-(Vous remarquerez que les ports ne sont pas les mêmes que pour le serveur. C'est parce que les ports de communication entre serveurs sont les ports 1099-1103 et les ports de communication entre clients et serveurs sont 1104-1109)
