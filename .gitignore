@@ -24,3 +24,6 @@ hs_err_pid*
 /nbproject/private/
 /build/
 /dist/
+
+# Bat files created by the program
+*.bat

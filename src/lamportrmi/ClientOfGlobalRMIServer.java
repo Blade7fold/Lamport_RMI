@@ -83,6 +83,7 @@ public class ClientOfGlobalRMIServer {
         Scanner in = new Scanner(System.in);
         String val;
         do {
+            System.out.println("================================");
             System.out.println("I am client number " + id);
             System.out.println("================================");
             System.out.println("Select an option:");
