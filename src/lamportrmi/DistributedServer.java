@@ -1,10 +1,13 @@
 package lamportrmi;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import static java.lang.System.exit;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.rmi.AlreadyBoundException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -25,8 +28,10 @@ public class DistributedServer extends LamportServer implements IGlobalRMI {
 
     /**
      * Constructeur de la classe DistributedServer
-     * @param servers liste d'informations concernant tous les serveurs du pool auquel on est connecté
-     * @param ownDAO information concernant le serveur du site tournant sur ce processus
+     * @param servers Liste d'informations concernant tous les serveurs du pool
+     * auquel on est connecté
+     * @param ownDAO Information concernant le serveur du site tournant sur
+     * ce processus
      * @throws RemoteException
      * @throws InterruptedException 
      */
@@ -43,10 +48,12 @@ public class DistributedServer extends LamportServer implements IGlobalRMI {
     @Override
     public void setVariable(int newValue) throws RemoteException {
         askLock();      // Demande de la section critique
-        //change la variable pour nous-même
+        
+        // Change la variable pour nous-même
         System.out.println("Value before change = " + this.globalVariable);
         this.setVariableGlobally(newValue);
-        //change la variable pour les autres serveurs
+        
+        // Change la variable pour les autres serveurs
         for (Map.Entry<Integer, ILamportServer> entry : serverMap.entrySet()) {
             Integer id = entry.getKey();
             ILamportServer server = entry.getValue();
@@ -54,6 +61,7 @@ public class DistributedServer extends LamportServer implements IGlobalRMI {
                 server.setVariableGlobally(newValue);
             }
         }
+        
         finishLock();   // Libération de la section critique
     }
 
@@ -64,16 +72,13 @@ public class DistributedServer extends LamportServer implements IGlobalRMI {
     }
     
     public static void main (String[] args)
-            throws RemoteException, AlreadyBoundException, InterruptedException {
+            throws RemoteException,
+            AlreadyBoundException,
+            InterruptedException,
+            FileNotFoundException,
+            UnsupportedEncodingException {
         String own_ip_adress = args[0];             // Adresse IP du serveur
         int own_port = Integer.parseInt(args[1]);   // Port du serveur
-        
-        /*******************FOR DEBUG*********************/
-        //String own_ip_adress = "127.0.0.1";
-        //int own_port = 1099;
-        //int own_port = 1100;
-        //int own_port = 1101;
-        /*******************FOR DEBUG*********************/
         
         // Lecture de la topologie et création d'une liste lui correspondant
         final String delimiter = " ";
@@ -122,7 +127,7 @@ public class DistributedServer extends LamportServer implements IGlobalRMI {
         registryLamport.bind(ILamportServer.SERVICE_NAME, server);
         
         // Création du registre pour se connecter au service Global
-        Registry registryGlobal = LocateRegistry.createRegistry(own_port + 3);
+        Registry registryGlobal = LocateRegistry.createRegistry(own_port + serverList.size());
         registryGlobal.bind(IGlobalRMI.SERVICE_NAME, server);
         
         // Connection de ce serveur à tous les autre serveurs
@@ -149,7 +154,7 @@ public class DistributedServer extends LamportServer implements IGlobalRMI {
                         ILamportServer serveur = (ILamportServer)registry.
                                                 lookup(ILamportServer.SERVICE_NAME);
                         serverMap.put(serverDAO.getId(), serveur);
-                    } catch (Exception ex) {
+                    } catch (RemoteException | NotBoundException ex) {
                         if(i == DELAY_TO_START_ALL_SERVERS - 1) {
                             System.out.println("Impossible to connect at " + url);
                             exit(1);
@@ -166,7 +171,11 @@ public class DistributedServer extends LamportServer implements IGlobalRMI {
                 }
             }
         }
+        
         server.setServers(serverMap);
+        System.out.println("Adresse IP: " + own_DAO.IP_ADRESS +
+                           ", Port: " + own_DAO.PORT + 
+                           ", ID: " + own_DAO.ID);
         System.out.println("All servers are connected!");
     }
 }

@@ -68,15 +68,12 @@ public abstract class LamportServer extends UnicastRemoteObject implements ILamp
         long time = System.currentTimeMillis();
         Message message = new Message(ID, time, MessageType.REQUEST);
         stateMessages[ID] = message;
-                    System.out.println("ASKING LOCK");
         for (Map.Entry<Integer, ILamportServer> entry : serverMap.entrySet()) {
             Integer id = entry.getKey();
             ILamportServer server = entry.getValue();
-                    System.out.println("SERVER " + id);
             try {
                 if (id != ID) {
                     server.request(message);
-                    System.out.println("REQUEST DONE " + time);
                 }
             } catch (RemoteException ex) {
                 System.out.println(ex);
@@ -85,7 +82,8 @@ public abstract class LamportServer extends UnicastRemoteObject implements ILamp
             }
         }
         
-        System.out.println("PERMISSION");
+        // Demande la permission d'accéder à la section critique et attend tant 
+        // qu'il ne peut pas y accéder
         while(!permission()) {
             try {
                 Thread.sleep(10);
@@ -102,11 +100,10 @@ public abstract class LamportServer extends UnicastRemoteObject implements ILamp
     private boolean permission() {
         boolean accord = true;
         int id;
-        System.out.println("MESSAGE DATE" + ID + ": " + stateMessages[ID].getDate() + ", TYPE: " + stateMessages[ID].getTYPE());
+        
         for (ServerDAO server : servers) {
             id = server.getId();
             if (id != ID) {
-                System.out.println("MESSAGE DATE" + id + ": " + stateMessages[id].getDate() + ", TYPE: " + stateMessages[id].getTYPE());
                 accord = accord &&
                             (stateMessages[ID].getDate() <
                         stateMessages[id].getDate() ||
@@ -133,7 +130,6 @@ public abstract class LamportServer extends UnicastRemoteObject implements ILamp
                 } else {
                     stateMessages[id] = message;
                 }
-                System.out.println("FREE DONE");
             } catch (RemoteException ex) {
                 System.out.println(ex);
                 // Selon la donnée on considère que le réseau est entièrement 
@@ -144,24 +140,21 @@ public abstract class LamportServer extends UnicastRemoteObject implements ILamp
 
     @Override
     public void request(Message message) throws RemoteException {
-        int id = message.getFROM();
-        System.out.println("REQUEST TIME");
-        if (message.getTYPE() == MessageType.REQUEST) {
+        int id = message.getFrom();
+        if (message.getType() == MessageType.REQUEST) {
             stateMessages[id] = message;
             long currTime = Math.max(message.getDate(),
                                      System.currentTimeMillis()) + 1;
             Message responseMsg = new Message(ID, currTime, MessageType.RESPONSE);
             serverMap.get(id).response(responseMsg);
-                System.out.println("RESPONSE DONE");
         }
     }
 
     @Override
     public void response(Message message) throws RemoteException {
-        int id = message.getFROM();
-        System.out.println("RESPONSE TIME");
-        if (message.getTYPE() == MessageType.RESPONSE) {
-            if (stateMessages[id].getTYPE() != MessageType.REQUEST) {
+        int id = message.getFrom();
+        if (message.getType() == MessageType.RESPONSE) {
+            if (stateMessages[id].getType() != MessageType.REQUEST) {
                 stateMessages[id] = message;
             }
         }
@@ -169,9 +162,8 @@ public abstract class LamportServer extends UnicastRemoteObject implements ILamp
 
     @Override
     public void freeSC(Message message) throws RemoteException {
-        int id = message.getFROM();
-        System.out.println("FREE TIME");
-        if (message.getTYPE() == MessageType.FREE) {
+        int id = message.getFrom();
+        if (message.getType() == MessageType.FREE) {
             if(stateMessages[id].getDate() < message.getDate()) {
                 stateMessages[id] = message;
             }

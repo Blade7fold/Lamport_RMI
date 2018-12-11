@@ -63,15 +63,9 @@ public class ClientOfGlobalRMIServer {
     
     public static void main (String[] args){
         // Se connecte au serveur RMI distant
-//        String ip_adress = args[0];
-//        int port = Integer.parseInt(args[1]);
-        
-        /*******************FOR DEBUG*********************/
-        String ip_adress = "127.0.0.1";
-        //int port = 1102;
-        int port = 1103;
-        //int port = 1104;
-        /********************FOR DEBUG********************/
+        String ip_adress = args[0];
+        int port = Integer.parseInt(args[1]);
+        int id = Integer.parseInt(args[2]);
         
         ClientOfGlobalRMIServer client =  null;
         try {
@@ -89,6 +83,7 @@ public class ClientOfGlobalRMIServer {
         Scanner in = new Scanner(System.in);
         String val;
         do {
+            System.out.println("I am client number " + id);
             System.out.println("================================");
             System.out.println("Select an option:");
             System.out.println(GET_VAR + ": read the global variable");
