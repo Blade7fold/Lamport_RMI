@@ -1,8 +1,10 @@
 # Lancement
 Pour lancer le programme, il faut ouvrir dans NetBeans le projet, faire un clean/build du projet, ouvrir le fichier `MainBot.java`, faire click droit dessus et utiliser l'option Run File. En faisant ceci, les serveurs se connecteront automatiquement entre eux.
+
 Après la connexion, il faut aller dans le dossier `src/lamportrmi`, dans lequel vous trouverez des fichier `client.bat` numérotés. Il faut lancer ces fichiers en faisant double click sur chaque fichier (ou en sélectionnant tous les fichiers et en cliquant sur Enter pour les lancer tous à la fois).
 
 Ceci ouvrira une ligne de commande par client dans laquelle vous aurez 3 options:
+
 En écrivant '1' -> Affichage de la variable globalle, pour obtenir sa valeur et l'afficher.
 En écrivant '2' -> Modification de la variable globalle, moment dans lequel on veut modifier la variable globalle, où l'on écrira le nouveau nombre que l'on veut pour la variable.
 En écrivant 'q' -> Quitter la ligne de commande.
