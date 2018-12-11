@@ -82,9 +82,9 @@ public class ClientOfGlobalRMIServer {
         // Demande à l'utilisateur les actions qu'il souhaite effectuer
         Scanner in = new Scanner(System.in);
         String val;
+        System.out.println("================================");
+        System.out.println("I am client number " + id);
         do {
-            System.out.println("================================");
-            System.out.println("I am client number " + id);
             System.out.println("================================");
             System.out.println("Select an option:");
             System.out.println(GET_VAR + ": read the global variable");
